@@ -1,46 +1,45 @@
 sub what () {
 	my @brain = "brain.txt".IO.lines;
 	say "================TODO=================";
-	for @brain {say $_ ;};
+	for @brain { .say ;};
 }
 
 sub what-else ($todo) {
 	my $brain = slurp("brain.txt");
 	my $new-brain = $brain ~ $todo ~ "\n";
-	spurt("brain.csv", $new-brain);
+	spurt("brain.txt", $new-brain);
 }
 
 sub job-done ($todo) {
-	my $i = 0;
 	my @brain = "brain.txt".IO.lines;
 	for @brain {
-	    if $_ ~~ $todo {
-		 say @brain[$i];
-                 @brain[$i] = "--"~@brain[$i]~"--";
-            }
-         $i++;
-        }
+	    if $_ eq $todo { 
+		$_ = "--{$_}--";
+	    }
+	}
 	@brain .= join("\n");
 	spurt("brain.txt", @brain);
-	what();
 } 
 
 sub clear {
 	spurt("brain.txt", "");
+	say "Brain cleared.\n";
 }
 
 multi sub MAIN () { 
-	what();
+	what;
 }
 
-multi sub MAIN ($arg where { $_ ~~ "done" }, $todo) {
+multi sub MAIN ("done", $todo) {
 	job-done($todo);
+	what;
 }
 
-multi sub MAIN ($arg where { $_ ~~ "clear" }) {
+multi sub MAIN ("clear") {
 	clear();
 }
 
 multi sub MAIN (*@todo) {
 	what-else(@todo);
+	what;	
 }
